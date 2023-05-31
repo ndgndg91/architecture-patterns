@@ -9,3 +9,12 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql: TRACE

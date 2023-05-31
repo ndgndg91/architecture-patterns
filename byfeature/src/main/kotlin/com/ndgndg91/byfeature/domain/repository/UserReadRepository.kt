@@ -10,4 +10,8 @@ interface UserReadRepository: JpaRepository<User, Long> {
     fun findByEmail(email: String): User?
 
     fun findAllByFirstName(firstName: String, pageable: Pageable): Page<User>
+
+    fun findAllByLastName(lastName: String, pageable: Pageable): Page<User>
+
+    fun findAllByFirstNameAndLastName(firstName: String, lastName: String, pageable: Pageable): Page<User>
 }
