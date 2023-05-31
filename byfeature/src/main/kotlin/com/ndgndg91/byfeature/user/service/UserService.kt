@@ -6,8 +6,10 @@ import com.ndgndg91.byfeature.global.exception.internal.user.UserNotFoundExcepti
 import com.ndgndg91.byfeature.user.adaptor.UserRepository
 import com.ndgndg91.byfeature.user.service.dto.event.SignUpEvent
 import com.ndgndg91.byfeature.user.service.dto.result.SignUpResult
+import com.ndgndg91.byfeature.user.service.dto.result.UserPagingResult
 import com.ndgndg91.byfeature.user.service.dto.result.UserResult
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,6 +32,19 @@ class UserService(
         userRepository.save(user)
         applicationEventPublisher.publishEvent(SignUpEvent(this, email))
         return SignUpResult("")
+    }
+
+    @Transactional(readOnly = true)
+    fun findAll(pageRequest: PageRequest): UserPagingResult {
+        return userRepository.findAll(pageRequest).let {
+            UserPagingResult(
+                page = it.number,
+                pageSize = it.size,
+                totalPages = it.totalPages,
+                totalElements = it.totalElements,
+                offset = it.pageable.offset,
+                content = it.content.map{ u -> UserResult(u) })
+        }
     }
 
     @Transactional(readOnly = true)
