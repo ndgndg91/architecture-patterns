@@ -6,23 +6,31 @@ import com.ndgndg91.byfeature.global.protocol.SuccessResponse
 import com.ndgndg91.byfeature.global.protocol.request.OffsetBasedPageRequest
 import com.ndgndg91.byfeature.global.protocol.toSuccessResponse
 import com.ndgndg91.byfeature.user.controller.protocol.request.SignUpRequest
-import com.ndgndg91.byfeature.user.controller.protocol.response.SignUpResponse
-import com.ndgndg91.byfeature.user.controller.protocol.response.UserFrameResponse
-import com.ndgndg91.byfeature.user.controller.protocol.response.UserPaginationResponse
-import com.ndgndg91.byfeature.user.controller.protocol.response.UserResponse
+import com.ndgndg91.byfeature.user.controller.protocol.response.*
 import com.ndgndg91.byfeature.user.service.UserService
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Min
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
+@Validated
 @RestController
 class UserController(private val userService: UserService) {
 
     @PostMapping("/api/users/sign-up")
-    fun signUp(@RequestBody request: SignUpRequest): ResponseEntity<SuccessResponse<SignUpResponse>> {
-        request.validate()
-        val result = userService.signUp(request.email, request.password)
+    fun signUp(@RequestBody @Valid request: SignUpRequest): ResponseEntity<SuccessResponse<SignUpResponse>> {
+        val result = userService.signUp(request.toCommand())
         return ResponseEntity.ok(SignUpResponse(result).toSuccessResponse())
+    }
+
+    @GetMapping("/api/users/{id}")
+    fun queryAndPath(
+        @RequestParam @Min(0) size: Int,
+        @PathVariable @Min(0) id: Long
+    ): ResponseEntity<SuccessResponse<Unit>> {
+        return ResponseEntity.ok(Unit.toSuccessResponse())
     }
 
     @GetMapping("/api/users")

@@ -4,6 +4,7 @@ import com.ndgndg91.byfeature.domain.User
 import com.ndgndg91.byfeature.global.exception.internal.ServiceException
 import com.ndgndg91.byfeature.global.exception.internal.user.UserNotFoundException
 import com.ndgndg91.byfeature.user.adaptor.UserRepository
+import com.ndgndg91.byfeature.user.service.dto.command.SignUpCommand
 import com.ndgndg91.byfeature.user.service.dto.event.SignUpEvent
 import com.ndgndg91.byfeature.user.service.dto.result.SignUpResult
 import com.ndgndg91.byfeature.user.service.dto.result.UserPagingResult
@@ -22,15 +23,15 @@ class UserService(
 ) {
 
     @Transactional(rollbackFor = [Exception::class])
-    fun signUp(email: String, password: String): SignUpResult {
-        if (userRepository.findByEmail(email) != null) {
+    fun signUp(command: SignUpCommand): SignUpResult {
+        if (userRepository.findByEmail(command.email) != null) {
             throw ServiceException(HttpStatus.BAD_REQUEST.value())
         }
 
-        val encodedPassword = passwordEncoder.encode(password)
-        val user = User.signUp(email, encodedPassword)
+        val encodedPassword = passwordEncoder.encode(command.rawPassword)
+        val user = User.signUp(command.email, encodedPassword)
         userRepository.save(user)
-        applicationEventPublisher.publishEvent(SignUpEvent(this, email))
+        applicationEventPublisher.publishEvent(SignUpEvent(this, command.email))
         return SignUpResult("")
     }
 
@@ -43,6 +44,7 @@ class UserService(
                 totalPages = it.totalPages,
                 totalElements = it.totalElements,
                 offset = it.pageable.offset,
+                hasNext = it.hasNext(),
                 content = it.content.map{ u -> UserResult(u) })
         }
     }
@@ -54,6 +56,7 @@ class UserService(
                 page = it.number,
                 pageSize = it.size,
                 offset = it.pageable.offset,
+                hasNext = it.hasNext(),
                 content = it.content.map { u -> UserResult(u) }
             )
         }

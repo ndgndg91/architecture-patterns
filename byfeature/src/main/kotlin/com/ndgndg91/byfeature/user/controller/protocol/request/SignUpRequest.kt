@@ -1,14 +1,15 @@
 package com.ndgndg91.byfeature.user.controller.protocol.request
 
-import com.ndgndg91.byfeature.global.exception.internal.ValidationException
+import com.ndgndg91.byfeature.user.controller.protocol.validation.annotation.ValidEmail
+import com.ndgndg91.byfeature.user.controller.protocol.validation.annotation.ValidPassword
+import com.ndgndg91.byfeature.user.service.dto.command.SignUpCommand
 
 
 data class SignUpRequest(
-    val email: String,
-    val password: String
+    @field:ValidEmail val email: String?,
+    @field:ValidPassword val password: String?
 ) {
-    fun validate() {
-        require(email.length < 100) { throw ValidationException("email exceed 100.") }
-        require(password.length < 100) { throw ValidationException("password exceed 100.") }
+    fun toCommand(): SignUpCommand {
+        return SignUpCommand(email!!, password!!)
     }
 }

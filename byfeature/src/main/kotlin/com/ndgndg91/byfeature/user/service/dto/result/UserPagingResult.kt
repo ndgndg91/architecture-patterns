@@ -6,5 +6,6 @@ data class UserPagingResult(
     val totalPages: Int? = null,
     val totalElements: Long? = null,
     val offset: Long,
+    val hasNext: Boolean,
     val content: List<UserResult>
 )
